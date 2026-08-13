@@ -8,6 +8,7 @@
 #include "uicommandbardialog.h"
 
 #include <algorithm>
+#include <unordered_set>
 
 #include "strutil.h"
 #include "uicolorconfig.h"
@@ -184,9 +185,42 @@ void UiCommandBarDialog::UpdateList()
   }
 }
 
+static std::string FormatDefaultLabel(const std::string& p_Func)
+{
+  std::vector<std::string> words = StrUtil::Split(p_Func, '_');
+  std::string label;
+  for (size_t i = 0; i < words.size(); ++i)
+  {
+    std::string w = words[i];
+    if (w == "msg")
+    {
+      w = "Message";
+    }
+    else if (w == "ext")
+    {
+      w = "External";
+    }
+    else if (!w.empty())
+    {
+      w[0] = toupper(w[0]);
+    }
+
+    label += (i > 0 ? " " : "") + w;
+  }
+  return label;
+}
+
 void UiCommandBarDialog::InitCommands()
 {
-  std::vector<std::pair<std::string, std::string>> commands = {
+  static const std::unordered_set<std::string> ignoredKeys = {
+    "ok", "cancel", "clear", "left", "right", "linebreak", "prev_page", "next_page", "down", "up", "end", "home",
+    "backspace", "backspace_alt", "delete", "delete_line_after_cursor", "delete_line_before_cursor",
+    "begin_line", "end_line", "backward_word", "forward_word", "kill_word", "backward_kill_word",
+    "cut", "copy", "paste", "tab", "terminal_focus_in", "terminal_focus_out", "terminal_resize",
+    "command_bar", "other_commands_help"
+  };
+
+  static const std::vector<std::pair<std::string, std::string>> knownCommands = {
     { "send_msg", "Send Message" },
     { "select_emoji", "Add Emoji" },
     { "goto_chat", "Go to Chat" },
@@ -224,12 +258,29 @@ void UiCommandBarDialog::InitCommands()
     { "quit", "Quit nchat" }
   };
 
-  for (const auto& cmd : commands)
+  std::unordered_set<std::string> added;
+  for (const auto& cmd : knownCommands)
   {
     CommandItem item;
     item.func = cmd.first;
     item.label = cmd.second;
     item.keyCode = UiKeyConfig::GetKey(cmd.first);
     m_AllCommands.push_back(item);
+    added.insert(cmd.first);
+  }
+
+  // Dynamically discover any newly added keys from UiKeyConfig without manual updates
+  std::map<std::string, std::string> keyMap = UiKeyConfig::GetMap();
+  for (const auto& kv : keyMap)
+  {
+    const std::string& func = kv.first;
+    if (added.count(func) || ignoredKeys.count(func)) continue;
+
+    CommandItem item;
+    item.func = func;
+    item.label = FormatDefaultLabel(func);
+    item.keyCode = UiKeyConfig::GetKey(func);
+    m_AllCommands.push_back(item);
+    added.insert(func);
   }
 }
