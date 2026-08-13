@@ -54,6 +54,7 @@ Interactive Commands:
     PageUp      history previous page
     Tab         next chat
     Sh-Tab      previous chat
+    Ctrl-b      command bar
     Ctrl-f      jump to unread chat
     Ctrl-g      toggle show help bar
     Ctrl-l      toggle show contact list

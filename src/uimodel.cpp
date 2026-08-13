@@ -34,6 +34,7 @@
 #include "uigroupmemberlistdialog.h"
 #include "uicontroller.h"
 #include "uiemojilistdialog.h"
+#include "uicommandbardialog.h"
 #include "uifilelistdialog.h"
 #include "uikeyconfig.h"
 #include "uikeyinput.h"
@@ -4624,6 +4625,7 @@ void UiModel::KeyHandler(wint_t p_Key)
 
   static wint_t keyAutoCompose = UiKeyConfig::GetKey("auto_compose");
   static wint_t keySelectMention = UiKeyConfig::GetKey("select_mention");
+  static wint_t keyCommandBar = UiKeyConfig::GetKey("command_bar");
 
   if (p_Key == keyTerminalResize)
   {
@@ -4852,6 +4854,10 @@ void UiModel::KeyHandler(wint_t p_Key)
   {
     OnKeyAutoCompose();
   }
+  else if (p_Key == keyCommandBar)
+  {
+    OnKeyCommandBar();
+  }
   else
   {
     std::unique_lock<owned_mutex> lock(m_ModelMutex);
@@ -4974,6 +4980,12 @@ bool UiModel::GetEmojiEnabled()
 {
   std::unique_lock<owned_mutex> lock(m_ModelMutex);
   return GetImpl().GetEmojiEnabled();
+}
+
+bool UiModel::GetSelectMessageActive()
+{
+  std::unique_lock<owned_mutex> lock(m_ModelMutex);
+  return GetImpl().GetSelectMessageActive();
 }
 
 int UiModel::GetHelpOffset()
@@ -5307,6 +5319,37 @@ void UiModel::OnKeySelectEmoji()
     const std::wstring emoji = dialog.GetSelectedEmoji(GetEmojiEnabled());
     std::unique_lock<owned_mutex> lock(m_ModelMutex);
     GetImpl().InsertEmoji(emoji);
+  }
+  else
+  {
+    std::unique_lock<owned_mutex> lock(m_ModelMutex);
+    GetImpl().ReinitView();
+  }
+}
+
+void UiModel::OnKeyCommandBar()
+{
+  // Pre-req
+  {
+    std::unique_lock<owned_mutex> lock(m_ModelMutex);
+    if (GetImpl().GetEditMessageActive()) return;
+  }
+
+  // Open modal dialog without model mutex held
+  UiDialogParams params(this, "Command Bar", 0.6, 0.7);
+  UiCommandBarDialog dialog(params);
+  if (dialog.Run())
+  {
+    CommandItem cmd = dialog.GetSelectedCommand();
+    {
+      std::unique_lock<owned_mutex> lock(m_ModelMutex);
+      GetImpl().ReinitView();
+    }
+
+    if (cmd.keyCode != (wint_t)-1 && cmd.keyCode != (wint_t)0)
+    {
+      KeyHandler(cmd.keyCode);
+    }
   }
   else
   {
