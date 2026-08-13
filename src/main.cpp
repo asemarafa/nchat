@@ -653,6 +653,7 @@ void ShowHelp()
     "    PageUp      history previous page\n"
     "    Tab         next chat\n"
     "    Sh-Tab      previous chat\n"
+    "    Ctrl-b      command bar\n"
     "    Ctrl-f      jump to unread chat\n"
     "    Ctrl-g      toggle show help bar\n"
     "    Ctrl-l      toggle show contact list\n"

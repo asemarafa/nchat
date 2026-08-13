@@ -334,6 +334,7 @@ public:
   void RequestGroupMembers(const std::string& p_ProfileId, const std::string& p_ChatId);
   std::vector<std::string> GetGroupMembers(const std::string& p_ProfileId, const std::string& p_ChatId);
   bool GetEmojiEnabled();
+  bool GetSelectMessageActive();
   int GetHelpOffset();
   void SetHelpOffset(int p_HelpOffset);
   void SetMessageDialogActive(bool p_MessageDialogActive);
@@ -398,6 +399,7 @@ private:
   std::vector<std::string> SelectFile();
   void OnKeyTransfer();
   void OnKeySelectEmoji();
+  void OnKeyCommandBar();
   void OnKeySelectContact();
   void OnKeyReact();
   void OnKeyFind();

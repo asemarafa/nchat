@@ -408,6 +408,8 @@ add_executable(nchat
   src/uichatlistdialog.h
   src/uicolorconfig.cpp
   src/uicolorconfig.h
+  src/uicommandbardialog.cpp
+  src/uicommandbardialog.h
   src/uiconfig.cpp
   src/uiconfig.h
   src/uicontactlistdialog.cpp
