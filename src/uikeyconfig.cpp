@@ -251,6 +251,7 @@ void UiKeyConfig::Init(bool p_MapKeys)
     { "forward_msg", "\\33\\162" }, // alt/opt-r
     { "goto_chat", "KEY_CTRLN" },
     { "other_commands_help", "KEY_CTRLO" },
+    { "command_bar", "KEY_CTRLB" },
     { "decrease_list_width", "\\33\\54" }, // alt/opt-,
     { "increase_list_width", "\\33\\56" }, // alt/opt-.
     { "terminal_focus_in", "KEY_FOCUS_IN" },
